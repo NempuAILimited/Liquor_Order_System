@@ -1,0 +1,45 @@
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+
+import liquorRoutes from './routes/liquorRoutes';
+import orderRoutes from './routes/orderRoutes';
+import pdfRoutes from './routes/pdfRoutes';
+
+const app = express();
+const PORT = process.env.PORT || 6001;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static files (frontend)
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
+// API Routes
+app.use('/api/liquor', liquorRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/pdf', pdfRoutes);
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Liquor Order System is running' });
+});
+
+// Serve frontend for all other routes
+app.get('/{*splat}', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+});
+
+app.listen(PORT, () => {
+  console.log(`
+  ╔════════════════════════════════════════════════╗
+  ║     🍺 Liquor Order System - Running          ║
+  ║     📍 http://localhost:${PORT}                  ║
+  ║     📋 API: http://localhost:${PORT}/api/health  ║
+  ╚════════════════════════════════════════════════╝
+  `);
+});
+
+export default app;

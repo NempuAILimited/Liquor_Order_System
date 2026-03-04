@@ -1,0 +1,222 @@
+[
+    {
+        "id": "LIQ001",
+        "name": "Royal Stag",
+        "brand": "Pernod Ricard",
+        "category": "IMFL_WHISKY",
+        "size": "750ml",
+        "pricePerUnit": 560,
+        "exciseDuty": 95,
+        "hsnCode": "2208.30",
+        "availableSizes": ["180ml", "375ml", "750ml"]
+    },
+    {
+        "id": "LIQ002",
+        "name": "Blenders Pride",
+        "brand": "Pernod Ricard",
+        "category": "IMFL_WHISKY",
+        "size": "750ml",
+        "pricePerUnit": 880,
+        "exciseDuty": 140,
+        "hsnCode": "2208.30",
+        "availableSizes": ["180ml", "375ml", "750ml"]
+    },
+    {
+        "id": "LIQ003",
+        "name": "McDowell's No.1",
+        "brand": "United Spirits",
+        "category": "IMFL_WHISKY",
+        "size": "750ml",
+        "pricePerUnit": 480,
+        "exciseDuty": 80,
+        "hsnCode": "2208.30",
+        "availableSizes": ["180ml", "375ml", "750ml"]
+    },
+    {
+        "id": "LIQ004",
+        "name": "Imperial Blue",
+        "brand": "Pernod Ricard",
+        "category": "IMFL_WHISKY",
+        "size": "750ml",
+        "pricePerUnit": 520,
+        "exciseDuty": 88,
+        "hsnCode": "2208.30",
+        "availableSizes": ["180ml", "375ml", "750ml"]
+    },
+    {
+        "id": "LIQ005",
+        "name": "Antiquity Blue",
+        "brand": "United Spirits",
+        "category": "IMFL_WHISKY",
+        "size": "750ml",
+        "pricePerUnit": 720,
+        "exciseDuty": 120,
+        "hsnCode": "2208.30",
+        "availableSizes": ["180ml", "375ml", "750ml"]
+    },
+    {
+        "id": "LIQ006",
+        "name": "Signature",
+        "brand": "United Spirits",
+        "category": "IMFL_WHISKY",
+        "size": "750ml",
+        "pricePerUnit": 950,
+        "exciseDuty": 155,
+        "hsnCode": "2208.30",
+        "availableSizes": ["180ml", "375ml", "750ml"]
+    },
+    {
+        "id": "LIQ007",
+        "name": "Old Monk",
+        "brand": "Mohan Meakin",
+        "category": "IMFL_RUM",
+        "size": "750ml",
+        "pricePerUnit": 380,
+        "exciseDuty": 65,
+        "hsnCode": "2208.40",
+        "availableSizes": ["180ml", "375ml", "750ml"]
+    },
+    {
+        "id": "LIQ008",
+        "name": "Bacardi White",
+        "brand": "Bacardi",
+        "category": "IMFL_RUM",
+        "size": "750ml",
+        "pricePerUnit": 750,
+        "exciseDuty": 125,
+        "hsnCode": "2208.40",
+        "availableSizes": ["180ml", "375ml", "750ml"]
+    },
+    {
+        "id": "LIQ009",
+        "name": "McDowell's No.1 Rum",
+        "brand": "United Spirits",
+        "category": "IMFL_RUM",
+        "size": "750ml",
+        "pricePerUnit": 420,
+        "exciseDuty": 70,
+        "hsnCode": "2208.40",
+        "availableSizes": ["180ml", "375ml", "750ml"]
+    },
+    {
+        "id": "LIQ010",
+        "name": "Smirnoff",
+        "brand": "Diageo",
+        "category": "IMFL_VODKA",
+        "size": "750ml",
+        "pricePerUnit": 820,
+        "exciseDuty": 135,
+        "hsnCode": "2208.60",
+        "availableSizes": ["180ml", "375ml", "750ml"]
+    },
+    {
+        "id": "LIQ011",
+        "name": "Magic Moments",
+        "brand": "Radico Khaitan",
+        "category": "IMFL_VODKA",
+        "size": "750ml",
+        "pricePerUnit": 620,
+        "exciseDuty": 105,
+        "hsnCode": "2208.60",
+        "availableSizes": ["180ml", "375ml", "750ml"]
+    },
+    {
+        "id": "LIQ012",
+        "name": "Bombay Sapphire",
+        "brand": "Bacardi",
+        "category": "IMFL_GIN",
+        "size": "750ml",
+        "pricePerUnit": 2400,
+        "exciseDuty": 280,
+        "hsnCode": "2208.50",
+        "availableSizes": ["750ml"]
+    },
+    {
+        "id": "LIQ013",
+        "name": "Blue Riband",
+        "brand": "United Spirits",
+        "category": "IMFL_GIN",
+        "size": "750ml",
+        "pricePerUnit": 440,
+        "exciseDuty": 75,
+        "hsnCode": "2208.50",
+        "availableSizes": ["180ml", "375ml", "750ml"]
+    },
+    {
+        "id": "LIQ014",
+        "name": "Morpheus Brandy",
+        "brand": "Radico Khaitan",
+        "category": "IMFL_BRANDY",
+        "size": "750ml",
+        "pricePerUnit": 680,
+        "exciseDuty": 110,
+        "hsnCode": "2208.20",
+        "availableSizes": ["180ml", "375ml", "750ml"]
+    },
+    {
+        "id": "LIQ015",
+        "name": "Honey Bee Brandy",
+        "brand": "United Spirits",
+        "category": "IMFL_BRANDY",
+        "size": "750ml",
+        "pricePerUnit": 360,
+        "exciseDuty": 60,
+        "hsnCode": "2208.20",
+        "availableSizes": ["180ml", "375ml", "750ml"]
+    },
+    {
+        "id": "LIQ016",
+        "name": "Kingfisher Premium",
+        "brand": "United Breweries",
+        "category": "BEER",
+        "size": "750ml",
+        "pricePerUnit": 140,
+        "exciseDuty": 25,
+        "hsnCode": "2203.00",
+        "availableSizes": ["375ml", "750ml"]
+    },
+    {
+        "id": "LIQ017",
+        "name": "Tuborg Strong",
+        "brand": "Carlsberg",
+        "category": "BEER",
+        "size": "750ml",
+        "pricePerUnit": 150,
+        "exciseDuty": 28,
+        "hsnCode": "2203.00",
+        "availableSizes": ["375ml", "750ml"]
+    },
+    {
+        "id": "LIQ018",
+        "name": "Budweiser",
+        "brand": "AB InBev",
+        "category": "BEER",
+        "size": "750ml",
+        "pricePerUnit": 180,
+        "exciseDuty": 32,
+        "hsnCode": "2203.00",
+        "availableSizes": ["375ml", "750ml"]
+    },
+    {
+        "id": "LIQ019",
+        "name": "Sula Sauvignon Blanc",
+        "brand": "Sula Vineyards",
+        "category": "WINE",
+        "size": "750ml",
+        "pricePerUnit": 750,
+        "exciseDuty": 90,
+        "hsnCode": "2204.21",
+        "availableSizes": ["750ml"]
+    },
+    {
+        "id": "LIQ020",
+        "name": "Sula Shiraz",
+        "brand": "Sula Vineyards",
+        "category": "WINE",
+        "size": "750ml",
+        "pricePerUnit": 800,
+        "exciseDuty": 95,
+        "hsnCode": "2204.21",
+        "availableSizes": ["750ml"]
+    }
+]

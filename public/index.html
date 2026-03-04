@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liquor Order System - Purchase Order Generator</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="container">
+      <div class="header-left">
+        <h1>🍺 Liquor Order System</h1>
+        <span class="badge">Purchase Order Generator</span>
+      </div>
+      <div class="header-right">
+        <div class="bar-info" id="barInfo">
+          <span class="bar-name" id="barName">Loading...</span>
+          <span class="license-no" id="licenseNo"></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container main-content">
+    <!-- Step Indicator -->
+    <div class="steps">
+      <div class="step active" data-step="1">
+        <div class="step-number">1</div>
+        <div class="step-label">Select Items</div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step" data-step="2">
+        <div class="step-number">2</div>
+        <div class="step-label">Review Cart</div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step" data-step="3">
+        <div class="step-number">3</div>
+        <div class="step-label">Generate PDF</div>
+      </div>
+    </div>
+
+    <!-- Step 1: Item Selection -->
+    <section class="section" id="step1">
+      <div class="section-header">
+        <h2>📦 Select Liquor Items</h2>
+        <div class="search-filter">
+          <input type="text" id="searchInput" placeholder="Search by name or brand..." class="search-box">
+          <select id="categoryFilter" class="category-select">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="items-grid" id="itemsGrid">
+        <!-- Items will be populated by JS -->
+      </div>
+    </section>
+
+    <!-- Step 2: Cart Review -->
+    <section class="section hidden" id="step2">
+      <div class="section-header">
+        <h2>🛒 Review Your Order</h2>
+        <button class="btn btn-outline" onclick="goToStep(1)">← Back to Items</button>
+      </div>
+
+      <div class="cart-container">
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Item Name</th>
+              <th>Brand</th>
+              <th>Size</th>
+              <th>Cases</th>
+              <th>Bottles/Case</th>
+              <th>Total Bottles</th>
+              <th>Rate (₹)</th>
+              <th>Amount (₹)</th>
+              <th>Excise (₹)</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="cartTableBody">
+          </tbody>
+        </table>
+
+        <div class="cart-summary">
+          <div class="summary-row">
+            <span>Subtotal (Item Cost):</span>
+            <span id="cartSubtotal">₹ 0</span>
+          </div>
+          <div class="summary-row">
+            <span>Total Excise Duty:</span>
+            <span id="cartExcise">₹ 0</span>
+          </div>
+          <div class="summary-row grand-total">
+            <span>Grand Total:</span>
+            <span id="cartGrandTotal">₹ 0</span>
+          </div>
+        </div>
+
+        <div class="cart-actions">
+          <button class="btn btn-outline" onclick="clearCart()">🗑️ Clear Cart</button>
+          <button class="btn btn-primary btn-large" onclick="submitOrder()">
+            ✅ Submit Order & Generate PDF
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 3: PDF Generated -->
+    <section class="section hidden" id="step3">
+      <div class="section-header">
+        <h2>📄 Purchase Order Generated</h2>
+      </div>
+
+      <div class="success-card">
+        <div class="success-icon">✅</div>
+        <h3>Your Purchase Order PDF is Ready!</h3>
+        <p class="order-number-display">Order No: <strong id="generatedOrderNumber"></strong></p>
+        <p class="order-info-text">The purchase order has been generated successfully. You can download it below.</p>
+
+        <div class="pdf-actions">
+          <a id="downloadPdfBtn" class="btn btn-primary btn-large" href="#" target="_blank">
+            📥 Download PDF
+          </a>
+          <button class="btn btn-outline" onclick="startNewOrder()">
+            🔄 Create New Order
+          </button>
+        </div>
+
+        <div class="next-phase-note">
+          <h4>🚀 Coming Soon - Phase 2</h4>
+          <p>Upload this PDF directly to the Government Excise Portal for online ordering.</p>
+        </div>
+      </div>
+
+      <!-- Order History -->
+      <div class="order-history">
+        <h3>📋 Recent Orders</h3>
+        <div id="orderHistoryList"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Cart Floating Button -->
+  <div class="cart-fab hidden" id="cartFab" onclick="goToStep(2)">
+    🛒 <span id="cartCount">0</span> items
+    <span class="cart-total" id="cartFabTotal">₹ 0</span>
+  </div>
+
+  <!-- Item Quantity Modal -->
+  <div class="modal-overlay hidden" id="quantityModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalItemName">Item Name</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-item-details">
+          <span class="modal-brand" id="modalBrand"></span>
+          <span class="modal-category" id="modalCategory"></span>
+        </div>
+        <div class="modal-price-info">
+          <div class="price-row">
+            <span>MRP per bottle:</span>
+            <span id="modalPrice">₹ 0</span>
+          </div>
+          <div class="price-row">
+            <span>Excise per bottle:</span>
+            <span id="modalExcise">₹ 0</span>
+          </div>
+        </div>
+
+        <div class="quantity-section">
+          <label>Select Size:</label>
+          <select id="modalSize" class="size-select" onchange="updateModalSize()"></select>
+        </div>
+
+        <div class="quantity-section">
+          <label>Number of Cases:</label>
+          <div class="quantity-control">
+            <button class="qty-btn" onclick="adjustQty(-1)">−</button>
+            <input type="number" id="modalQuantity" value="1" min="1" max="999" onchange="updateModalTotal()">
+            <button class="qty-btn" onclick="adjustQty(1)">+</button>
+          </div>
+        </div>
+
+        <div class="quantity-section">
+          <label>Bottles per Case:</label>
+          <select id="modalUnitsPerCase" class="size-select" onchange="updateModalTotal()">
+            <option value="6">6</option>
+            <option value="12" selected>12</option>
+            <option value="24">24</option>
+            <option value="48">48</option>
+          </select>
+        </div>
+
+        <div class="modal-total">
+          <div class="total-row">
+            <span>Total Bottles:</span>
+            <span id="modalTotalBottles">12</span>
+          </div>
+          <div class="total-row">
+            <span>Item Cost:</span>
+            <span id="modalTotalAmount">₹ 0</span>
+          </div>
+          <div class="total-row">
+            <span>Excise Duty:</span>
+            <span id="modalTotalExcise">₹ 0</span>
+          </div>
+          <div class="total-row grand">
+            <span>Line Total:</span>
+            <span id="modalLineTotal">₹ 0</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="addToCart()">🛒 Add to Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay hidden" id="loadingOverlay">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Generating your Purchase Order PDF...</p>
+      <p class="loading-sub">This may take a few seconds</p>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <div class="container">
+      <p>Liquor Order System v1.0 | For authorized bar license holders only</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
