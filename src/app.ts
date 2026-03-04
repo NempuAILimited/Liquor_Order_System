@@ -32,14 +32,17 @@ app.get('/{*splat}', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`
+// Only start listening when not running as a Vercel serverless function
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`
   ╔════════════════════════════════════════════════╗
   ║     🍺 Liquor Order System - Running          ║
   ║     📍 http://localhost:${PORT}                  ║
   ║     📋 API: http://localhost:${PORT}/api/health  ║
   ╚════════════════════════════════════════════════╝
-  `);
-});
+    `);
+  });
+}
 
 export default app;

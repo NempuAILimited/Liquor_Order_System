@@ -1,14 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import Handlebars from 'handlebars';
-import puppeteer from 'puppeteer';
+import puppeteerCore from 'puppeteer-core';
 import { Order } from '../types';
 import { formatNumber, numberToWords } from '../utils/formatCurrency';
 import { getCategoryLabel } from './liquorService';
 import { getBarProfile } from './orderService';
 
-// Ensure the output directory exists
-const OUTPUT_DIR = path.join(process.cwd(), 'generated_pdfs');
+// On Vercel, use /tmp (only writable directory); locally use project root
+const OUTPUT_DIR = process.env.VERCEL
+  ? path.join('/tmp', 'generated_pdfs')
+  : path.join(process.cwd(), 'generated_pdfs');
 if (!fs.existsSync(OUTPUT_DIR)) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
@@ -17,8 +19,8 @@ if (!fs.existsSync(OUTPUT_DIR)) {
  * Generate a PDF purchase order for the given order
  */
 export async function generatePurchaseOrderPdf(order: Order): Promise<string> {
-  // 1. Load the Handlebars template (resolve from project root, not dist)
-  const templatePath = path.join(process.cwd(), 'src', 'templates', 'purchaseRequest.hbs');
+  // 1. Load the Handlebars template (use __dirname for Vercel ncc bundling compatibility)
+  const templatePath = path.resolve(__dirname, '..', 'templates', 'purchaseRequest.hbs');
   const templateSource = fs.readFileSync(templatePath, 'utf-8');
   const template = Handlebars.compile(templateSource);
 
@@ -58,10 +60,24 @@ export async function generatePurchaseOrderPdf(order: Order): Promise<string> {
   const html = template(templateData);
 
   // 4. Generate PDF using Puppeteer
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
+  let browser;
+  if (process.env.VERCEL) {
+    // Serverless: use @sparticuz/chromium for Vercel
+    const chromium = (await import('@sparticuz/chromium')).default;
+    browser = await puppeteerCore.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
+  } else {
+    // Local dev: use system-installed puppeteer
+    const puppeteer = await import('puppeteer');
+    browser = await puppeteer.default.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+  }
 
   const page = await browser.newPage();
   await page.setContent(html, { waitUntil: 'networkidle0' });
