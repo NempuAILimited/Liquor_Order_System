@@ -14,9 +14,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files (frontend)
-app.use(express.static(path.join(__dirname, '..', 'public')));
-
 // API Routes
 app.use('/api/liquor', liquorRoutes);
 app.use('/api/orders', orderRoutes);
@@ -27,10 +24,14 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Liquor Order System is running' });
 });
 
-// Serve frontend for all other routes
-app.get('/{*splat}', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
-});
+// Static files & catch-all only for local dev (not on Vercel)
+if (!process.env.VERCEL) {
+  app.use(express.static(path.join(__dirname, '..', 'public')));
+
+  app.get('/{*splat}', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+  });
+}
 
 // Only start listening when not running as a Vercel serverless function
 if (!process.env.VERCEL) {

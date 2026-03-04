@@ -2,10 +2,10 @@
   "version": 2,
   "buildCommand": "npm run build",
   "functions": {
-    "api/index.ts": {
+    "api/index.js": {
       "maxDuration": 30,
       "memory": 1024,
-      "includeFiles": "src/templates/**"
+      "includeFiles": "dist/**"
     }
   },
   "rewrites": [
