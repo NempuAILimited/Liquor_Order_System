@@ -19,8 +19,14 @@ if (!fs.existsSync(OUTPUT_DIR)) {
  * Generate a PDF purchase order for the given order
  */
 export async function generatePurchaseOrderPdf(order: Order): Promise<string> {
-  // 1. Load the Handlebars template (use __dirname for Vercel ncc bundling compatibility)
-  const templatePath = path.resolve(__dirname, '..', 'templates', 'purchaseRequest.hbs');
+  // 1. Load the Handlebars template
+  // On Vercel, the template is included via vercel.json includeFiles
+  // Locally (after build), it's in dist/templates/ (copied during build)
+  // In dev mode (ts-node), it's in src/templates/
+  let templatePath = path.resolve(__dirname, '..', 'templates', 'purchaseRequest.hbs');
+  if (!fs.existsSync(templatePath)) {
+    templatePath = path.join(process.cwd(), 'src', 'templates', 'purchaseRequest.hbs');
+  }
   const templateSource = fs.readFileSync(templatePath, 'utf-8');
   const template = Handlebars.compile(templateSource);
 
