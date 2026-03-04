@@ -3,7 +3,6 @@ import cors from 'cors';
 
 import liquorRoutes from '../src/routes/liquorRoutes';
 import orderRoutes from '../src/routes/orderRoutes';
-import pdfRoutes from '../src/routes/pdfRoutes';
 
 const app = express();
 
@@ -15,7 +14,16 @@ app.use(express.urlencoded({ extended: true }));
 // API Routes
 app.use('/api/liquor', liquorRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/pdf', pdfRoutes);
+
+// PDF routes - lazy loaded to avoid bundling puppeteer on cold start
+app.use('/api/pdf', async (req, res, next) => {
+  try {
+    const pdfRoutes = (await import('../src/routes/pdfRoutes')).default;
+    pdfRoutes(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+});
 
 // Health check
 app.get('/api/health', (_req, res) => {

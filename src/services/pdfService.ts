@@ -1,18 +1,19 @@
 import fs from 'fs';
 import path from 'path';
 import Handlebars from 'handlebars';
-import puppeteerCore from 'puppeteer-core';
 import { Order } from '../types';
 import { formatNumber, numberToWords } from '../utils/formatCurrency';
 import { getCategoryLabel } from './liquorService';
 import { getBarProfile } from './orderService';
 
-// On Vercel, use /tmp (only writable directory); locally use project root
-const OUTPUT_DIR = process.env.VERCEL
-  ? path.join('/tmp', 'generated_pdfs')
-  : path.join(process.cwd(), 'generated_pdfs');
-if (!fs.existsSync(OUTPUT_DIR)) {
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+function getOutputDir(): string {
+  const dir = process.env.VERCEL
+    ? path.join('/tmp', 'generated_pdfs')
+    : path.join(process.cwd(), 'generated_pdfs');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  return dir;
 }
 
 /**
@@ -65,11 +66,11 @@ export async function generatePurchaseOrderPdf(order: Order): Promise<string> {
   // 3. Render HTML
   const html = template(templateData);
 
-  // 4. Generate PDF using Puppeteer
+  // 4. Generate PDF using Puppeteer (lazy-loaded to avoid cold start overhead)
   let browser;
   if (process.env.VERCEL) {
-    // Serverless: use @sparticuz/chromium for Vercel
     const chromium = (await import('@sparticuz/chromium')).default;
+    const puppeteerCore = (await import('puppeteer-core')).default;
     browser = await puppeteerCore.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
@@ -77,9 +78,8 @@ export async function generatePurchaseOrderPdf(order: Order): Promise<string> {
       headless: chromium.headless,
     });
   } else {
-    // Local dev: use system-installed puppeteer
-    const puppeteer = await import('puppeteer');
-    browser = await puppeteer.default.launch({
+    const puppeteer = (await import('puppeteer')).default;
+    browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
@@ -88,6 +88,7 @@ export async function generatePurchaseOrderPdf(order: Order): Promise<string> {
   const page = await browser.newPage();
   await page.setContent(html, { waitUntil: 'networkidle0' });
 
+  const OUTPUT_DIR = getOutputDir();
   const pdfFileName = `${order.orderNumber.replace(/\//g, '-')}_${Date.now()}.pdf`;
   const pdfPath = path.join(OUTPUT_DIR, pdfFileName);
 
