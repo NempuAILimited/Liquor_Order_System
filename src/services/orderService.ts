@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 import { Order, CartItem, LiquorItem, OrderStatus, BarProfile } from '../types';
 import { generateOrderNumber, getFormattedDate } from '../utils/formatCurrency';
 import barProfileData from '../data/barProfile.json';
@@ -39,7 +39,7 @@ export function createOrder(cartItems: CartItem[]): Order {
   const grandTotal = subtotal + totalExcise;
 
   const order: Order = {
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     orderNumber: generateOrderNumber(),
     barLicenseNumber: barProfile.barLicenseNumber,
     barName: barProfile.barName,
