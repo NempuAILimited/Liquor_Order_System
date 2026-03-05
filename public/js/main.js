@@ -14,61 +14,82 @@ let lastPdfHtml = null;
 let lastOrderNumber = null;
 
 // ============================
-// PDF Generation Helper
+// PDF Generation Helper (iframe-based)
 // ============================
 async function generatePdfFromHtml(html, filename) {
-  // Extract <style> tags from HTML and inject into document <head>
-  // html2canvas doesn't process <style> inside dynamically injected elements
-  const styleRegex = /<style[^>]*>([\s\S]*?)<\/style>/gi;
-  const styleMatches = [];
-  let match;
-  while ((match = styleRegex.exec(html)) !== null) {
-    styleMatches.push(match[1]);
-  }
-  // Remove <style> tags from the HTML content
-  const htmlWithoutStyle = html.replace(styleRegex, '');
+  // Create a hidden iframe — gives us a clean, isolated document
+  // where <style> tags in <head> work properly for html2canvas
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.left = '0';
+  iframe.style.top = '0';
+  iframe.style.width = '794px';
+  iframe.style.height = '1123px'; // A4 proportions
+  iframe.style.border = 'none';
+  iframe.style.opacity = '0.01';
+  iframe.style.zIndex = '-9999';
+  iframe.style.pointerEvents = 'none';
+  document.body.appendChild(iframe);
 
-  // Inject styles into document head
-  const styleEl = document.createElement('style');
-  styleEl.id = 'pdf-render-styles';
-  styleEl.textContent = styleMatches.join('\n');
-  document.head.appendChild(styleEl);
+  // Write the full HTML document into the iframe
+  const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+  iframeDoc.open();
+  iframeDoc.write(html);
+  iframeDoc.close();
 
-  // Create container with the content (no style tags - they're in <head> now)
-  const container = document.createElement('div');
-  container.innerHTML = htmlWithoutStyle;
-  container.style.position = 'fixed';
-  container.style.left = '0';
-  container.style.top = '0';
-  container.style.width = '794px';
-  container.style.background = 'white';
-  container.style.zIndex = '-9999';
-  container.style.pointerEvents = 'none';
-  document.body.appendChild(container);
+  // Wait for iframe content to fully render
+  await new Promise(resolve => {
+    iframe.onload = resolve;
+    // Fallback timeout in case onload already fired
+    setTimeout(resolve, 800);
+  });
 
-  // Wait for browser layout + style computation
-  await new Promise(resolve => setTimeout(resolve, 500));
+  // Extra delay for style computation and layout
+  await new Promise(resolve => setTimeout(resolve, 300));
 
   try {
-    const opt = {
-      margin: [10, 10, 10, 10],
-      filename: filename,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: 794,
-        logging: false,
-      },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    };
+    // Capture the iframe body with html2canvas
+    const canvas = await html2canvas(iframeDoc.body, {
+      scale: 2,
+      useCORS: true,
+      scrollX: 0,
+      scrollY: 0,
+      width: 794,
+      windowWidth: 794,
+      logging: false,
+    });
 
-    await html2pdf().set(opt).from(container).save();
+    // Convert canvas to PDF using jsPDF
+    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+    const pdf = new jspdf.jsPDF({
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait',
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pdfWidth - 20; // 10mm margins
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 10; // top margin
+
+    // First page
+    pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+    heightLeft -= (pdfHeight - 20);
+
+    // Additional pages if content overflows
+    while (heightLeft > 0) {
+      position = -(pdfHeight - 20) + 10;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 10, position - (imgHeight - heightLeft - (pdfHeight - 20)), imgWidth, imgHeight);
+      heightLeft -= (pdfHeight - 20);
+    }
+
+    pdf.save(filename);
   } finally {
-    document.body.removeChild(container);
-    document.head.removeChild(styleEl);
+    document.body.removeChild(iframe);
   }
 }
 
