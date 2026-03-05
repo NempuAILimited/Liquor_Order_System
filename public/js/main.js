@@ -14,6 +14,65 @@ let lastPdfHtml = null;
 let lastOrderNumber = null;
 
 // ============================
+// PDF Generation Helper
+// ============================
+async function generatePdfFromHtml(html, filename) {
+  // Extract <style> tags from HTML and inject into document <head>
+  // html2canvas doesn't process <style> inside dynamically injected elements
+  const styleRegex = /<style[^>]*>([\s\S]*?)<\/style>/gi;
+  const styleMatches = [];
+  let match;
+  while ((match = styleRegex.exec(html)) !== null) {
+    styleMatches.push(match[1]);
+  }
+  // Remove <style> tags from the HTML content
+  const htmlWithoutStyle = html.replace(styleRegex, '');
+
+  // Inject styles into document head
+  const styleEl = document.createElement('style');
+  styleEl.id = 'pdf-render-styles';
+  styleEl.textContent = styleMatches.join('\n');
+  document.head.appendChild(styleEl);
+
+  // Create container with the content (no style tags - they're in <head> now)
+  const container = document.createElement('div');
+  container.innerHTML = htmlWithoutStyle;
+  container.style.position = 'fixed';
+  container.style.left = '0';
+  container.style.top = '0';
+  container.style.width = '794px';
+  container.style.background = 'white';
+  container.style.zIndex = '-9999';
+  container.style.pointerEvents = 'none';
+  document.body.appendChild(container);
+
+  // Wait for browser layout + style computation
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  try {
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 794,
+        logging: false,
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    };
+
+    await html2pdf().set(opt).from(container).save();
+  } finally {
+    document.body.removeChild(container);
+    document.head.removeChild(styleEl);
+  }
+}
+
+// ============================
 // Initialization
 // ============================
 document.addEventListener('DOMContentLoaded', async () => {
@@ -454,32 +513,7 @@ async function submitOrder() {
     const pdfHtml = pdfData.data.html;
     const orderNumber = orderData.data.orderNumber;
 
-    // Create a container for the HTML (on-screen but hidden behind page content)
-    const container = document.createElement('div');
-    container.innerHTML = pdfHtml;
-    container.style.position = 'fixed';
-    container.style.left = '0';
-    container.style.top = '0';
-    container.style.width = '794px';
-    container.style.zIndex = '-9999';
-    container.style.opacity = '0.01';
-    container.style.background = 'white';
-    container.style.overflow = 'hidden';
-    document.body.appendChild(container);
-
-    // Wait for browser to compute layout and apply styles
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    const opt = {
-      margin: [10, 10, 10, 10],
-      filename: `${orderNumber.replace(/\//g, '-')}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 794 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    };
-
-    await html2pdf().set(opt).from(container).save();
-    document.body.removeChild(container);
+    await generatePdfFromHtml(pdfHtml, `${orderNumber.replace(/\//g, '-')}.pdf`);
 
     // Store for re-download
     lastPdfHtml = pdfHtml;
@@ -556,28 +590,5 @@ async function redownloadPdf() {
     return;
   }
 
-  const container = document.createElement('div');
-  container.innerHTML = lastPdfHtml;
-  container.style.position = 'fixed';
-  container.style.left = '0';
-  container.style.top = '0';
-  container.style.width = '794px';
-  container.style.zIndex = '-9999';
-  container.style.opacity = '0.01';
-  container.style.background = 'white';
-  container.style.overflow = 'hidden';
-  document.body.appendChild(container);
-
-  await new Promise(resolve => setTimeout(resolve, 300));
-
-  const opt = {
-    margin: [10, 10, 10, 10],
-    filename: `${lastOrderNumber.replace(/\//g, '-')}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 794 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-  };
-
-  await html2pdf().set(opt).from(container).save();
-  document.body.removeChild(container);
+  await generatePdfFromHtml(lastPdfHtml, `${lastOrderNumber.replace(/\//g, '-')}.pdf`);
 }
