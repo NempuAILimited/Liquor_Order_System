@@ -454,20 +454,27 @@ async function submitOrder() {
     const pdfHtml = pdfData.data.html;
     const orderNumber = orderData.data.orderNumber;
 
-    // Create a hidden container for the HTML
+    // Create a container for the HTML (on-screen but hidden behind page content)
     const container = document.createElement('div');
     container.innerHTML = pdfHtml;
-    container.style.position = 'absolute';
-    container.style.left = '-9999px';
+    container.style.position = 'fixed';
+    container.style.left = '0';
     container.style.top = '0';
-    container.style.width = '210mm';
+    container.style.width = '794px';
+    container.style.zIndex = '-9999';
+    container.style.opacity = '0.01';
+    container.style.background = 'white';
+    container.style.overflow = 'hidden';
     document.body.appendChild(container);
+
+    // Wait for browser to compute layout and apply styles
+    await new Promise(resolve => setTimeout(resolve, 300));
 
     const opt = {
       margin: [10, 10, 10, 10],
       filename: `${orderNumber.replace(/\//g, '-')}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
+      html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 794 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
     };
 
@@ -551,17 +558,23 @@ async function redownloadPdf() {
 
   const container = document.createElement('div');
   container.innerHTML = lastPdfHtml;
-  container.style.position = 'absolute';
-  container.style.left = '-9999px';
+  container.style.position = 'fixed';
+  container.style.left = '0';
   container.style.top = '0';
-  container.style.width = '210mm';
+  container.style.width = '794px';
+  container.style.zIndex = '-9999';
+  container.style.opacity = '0.01';
+  container.style.background = 'white';
+  container.style.overflow = 'hidden';
   document.body.appendChild(container);
+
+  await new Promise(resolve => setTimeout(resolve, 300));
 
   const opt = {
     margin: [10, 10, 10, 10],
     filename: `${lastOrderNumber.replace(/\//g, '-')}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
+    html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 794 },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
   };
 

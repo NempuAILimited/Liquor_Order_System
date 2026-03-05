@@ -1,42 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Arial', sans-serif;
-      font-size: 11px;
-      color: #1a1a1a;
-      padding: 20px 30px;
-      line-height: 1.4;
-    }
+<div class="po-document" style="font-family: Arial, sans-serif; font-size: 11px; color: #1a1a1a; padding: 20px 30px; line-height: 1.4; background: white;">
+<style>
+    .po-document * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    .header {
+    .po-document .header {
       text-align: center;
       border-bottom: 3px double #333;
       padding-bottom: 10px;
       margin-bottom: 15px;
     }
-    .header h1 {
+    .po-document .header h1 {
       font-size: 18px;
       text-transform: uppercase;
       letter-spacing: 2px;
       margin-bottom: 3px;
       color: #222;
     }
-    .header h2 {
+    .po-document .header h2 {
       font-size: 14px;
       color: #c0392b;
       font-weight: bold;
       margin-bottom: 5px;
     }
-    .header .subtitle {
+    .po-document .header .subtitle {
       font-size: 10px;
       color: #555;
     }
 
-    .info-section {
+    .po-document .info-section {
       display: flex;
       justify-content: space-between;
       margin-bottom: 15px;
@@ -44,28 +34,28 @@
       padding: 10px;
       background-color: #fafafa;
     }
-    .info-left, .info-right {
+    .po-document .info-left, .po-document .info-right {
       width: 48%;
     }
-    .info-row {
+    .po-document .info-row {
       display: flex;
       margin-bottom: 3px;
     }
-    .info-label {
+    .po-document .info-label {
       font-weight: bold;
       min-width: 120px;
       color: #333;
     }
-    .info-value {
+    .po-document .info-value {
       color: #555;
     }
 
-    .order-table {
+    .po-document .order-table {
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 15px;
     }
-    .order-table th {
+    .po-document .order-table th {
       background-color: #2c3e50;
       color: white;
       padding: 6px 8px;
@@ -74,76 +64,76 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    .order-table td {
+    .po-document .order-table td {
       padding: 5px 8px;
       border: 1px solid #ddd;
       text-align: center;
       font-size: 10px;
     }
-    .order-table tr:nth-child(even) {
+    .po-document .order-table tr:nth-child(even) {
       background-color: #f9f9f9;
     }
-    .order-table .item-name {
+    .po-document .order-table .item-name {
       text-align: left;
       font-weight: 500;
     }
-    .order-table .amount {
+    .po-document .order-table .amount {
       text-align: right;
       font-family: 'Courier New', monospace;
     }
 
-    .totals-section {
+    .po-document .totals-section {
       display: flex;
       justify-content: flex-end;
       margin-bottom: 15px;
     }
-    .totals-box {
+    .po-document .totals-box {
       width: 320px;
       border: 1px solid #ccc;
     }
-    .totals-row {
+    .po-document .totals-row {
       display: flex;
       justify-content: space-between;
       padding: 5px 10px;
       border-bottom: 1px solid #eee;
     }
-    .totals-row.grand-total {
+    .po-document .totals-row.grand-total {
       background-color: #2c3e50;
       color: white;
       font-weight: bold;
       font-size: 13px;
       border: none;
     }
-    .totals-label { font-weight: 600; }
-    .totals-value {
+    .po-document .totals-label { font-weight: 600; }
+    .po-document .totals-value {
       font-family: 'Courier New', monospace;
       font-weight: 600;
     }
 
-    .amount-words {
+    .po-document .amount-words {
       border: 1px solid #ccc;
       padding: 8px 10px;
       margin-bottom: 15px;
       background-color: #fefefe;
       font-style: italic;
     }
-    .amount-words .label {
+    .po-document .amount-words .label {
       font-weight: bold;
       font-style: normal;
       color: #333;
     }
 
-    .footer-section {
+    .po-document .footer-section {
       display: flex;
       justify-content: space-between;
       margin-top: 40px;
       padding-top: 10px;
     }
-    .signature-box {
+    .po-document .signature-box {
       width: 200px;
       text-align: center;
     }
-    .signature-line {
+    .po-document .signature-line {
       border-top: 1px solid #333;
       margin-top: 50px;
       padding-top: 5px;
@@ -151,25 +141,25 @@
       font-weight: bold;
     }
 
-    .terms {
+    .po-document .terms {
       margin-top: 20px;
       border-top: 1px solid #ccc;
       padding-top: 8px;
       font-size: 9px;
       color: #777;
     }
-    .terms h4 {
+    .po-document .terms h4 {
       font-size: 10px;
       color: #555;
       margin-bottom: 3px;
     }
-    .terms li {
+    .po-document .terms li {
       margin-left: 15px;
       margin-bottom: 2px;
     }
 
-    .watermark {
-      position: fixed;
+    .po-document .watermark {
+      position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) rotate(-45deg);
@@ -181,8 +171,6 @@
       z-index: -1;
     }
   </style>
-</head>
-<body>
   <div class="watermark">PURCHASE ORDER</div>
 
   <div class="header">
@@ -299,5 +287,4 @@
       <li>Valid for submission within 7 days from the order date.</li>
     </ol>
   </div>
-</body>
-</html>
+</div>
