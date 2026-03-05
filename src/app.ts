@@ -28,7 +28,7 @@ app.get('/api/health', (req, res) => {
 if (!process.env.VERCEL) {
   app.use(express.static(path.join(__dirname, '..', 'public')));
 
-  app.get('/{*splat}', (req, res) => {
+  app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
   });
 }

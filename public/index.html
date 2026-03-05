@@ -126,9 +126,9 @@
         <p class="order-info-text">The purchase order has been generated successfully. You can download it below.</p>
 
         <div class="pdf-actions">
-          <a id="downloadPdfBtn" class="btn btn-primary btn-large" href="#" target="_blank">
-            📥 Download PDF
-          </a>
+          <button id="downloadPdfBtn" class="btn btn-primary btn-large" onclick="redownloadPdf()">
+            📥 Download PDF Again
+          </button>
           <button class="btn btn-outline" onclick="startNewOrder()">
             🔄 Create New Order
           </button>
@@ -242,6 +242,7 @@
     </div>
   </footer>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

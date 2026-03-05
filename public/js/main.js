@@ -10,6 +10,8 @@ let cart = [];
 let currentStep = 1;
 let selectedItem = null;
 let currentOrderId = null;
+let lastPdfHtml = null;
+let lastOrderNumber = null;
 
 // ============================
 // Initialization
@@ -437,7 +439,7 @@ async function submitOrder() {
     const orderId = orderData.data.id;
     currentOrderId = orderId;
 
-    // 2. Generate PDF
+    // 2. Generate PDF HTML from server
     const pdfRes = await fetch(`${API_BASE}/api/pdf/generate/${orderId}`, {
       method: 'POST',
     });
@@ -448,9 +450,36 @@ async function submitOrder() {
       throw new Error(pdfData.message);
     }
 
-    // 3. Update UI - Show success
-    document.getElementById('generatedOrderNumber').textContent = orderData.data.orderNumber;
-    document.getElementById('downloadPdfBtn').href = pdfData.data.downloadUrl;
+    // 3. Generate PDF client-side using html2pdf.js
+    const pdfHtml = pdfData.data.html;
+    const orderNumber = orderData.data.orderNumber;
+
+    // Create a hidden container for the HTML
+    const container = document.createElement('div');
+    container.innerHTML = pdfHtml;
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '210mm';
+    document.body.appendChild(container);
+
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: `${orderNumber.replace(/\//g, '-')}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    };
+
+    await html2pdf().set(opt).from(container).save();
+    document.body.removeChild(container);
+
+    // Store for re-download
+    lastPdfHtml = pdfHtml;
+    lastOrderNumber = orderNumber;
+
+    // 4. Update UI - Show success
+    document.getElementById('generatedOrderNumber').textContent = orderNumber;
 
     // Clear cart
     cart = [];
@@ -488,12 +517,8 @@ async function loadOrderHistory() {
           </div>
           <div>
             <span class="order-status ${order.status === 'PDF_GENERATED' ? 'status-pdf' : 'status-draft'}">
-              ${order.status === 'PDF_GENERATED' ? '📄 PDF Ready' : '📝 Draft'}
+              ${order.status === 'PDF_GENERATED' ? '📄 PDF Generated' : '📝 Draft'}
             </span>
-            ${order.status === 'PDF_GENERATED' ? 
-              `<a href="/api/pdf/download/${order.id}" class="btn btn-outline" style="margin-left:8px; padding:4px 12px; font-size:12px;" target="_blank">📥 Download</a>` 
-              : ''
-            }
           </div>
         </div>
       `).join('');
@@ -509,6 +534,37 @@ async function loadOrderHistory() {
 function startNewOrder() {
   cart = [];
   currentOrderId = null;
+  lastPdfHtml = null;
+  lastOrderNumber = null;
   updateCartUI();
   goToStep(1);
+}
+
+// ============================
+// Re-download PDF
+// ============================
+async function redownloadPdf() {
+  if (!lastPdfHtml || !lastOrderNumber) {
+    alert('No PDF available. Please create a new order.');
+    return;
+  }
+
+  const container = document.createElement('div');
+  container.innerHTML = lastPdfHtml;
+  container.style.position = 'absolute';
+  container.style.left = '-9999px';
+  container.style.top = '0';
+  container.style.width = '210mm';
+  document.body.appendChild(container);
+
+  const opt = {
+    margin: [10, 10, 10, 10],
+    filename: `${lastOrderNumber.replace(/\//g, '-')}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+  };
+
+  await html2pdf().set(opt).from(container).save();
+  document.body.removeChild(container);
 }
