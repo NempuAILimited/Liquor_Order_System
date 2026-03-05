@@ -24,14 +24,13 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Liquor Order System is running' });
 });
 
-// Static files & catch-all only for local dev (not on Vercel)
-if (!process.env.VERCEL) {
-  app.use(express.static(path.join(__dirname, '..', 'public')));
+// Static files & catch-all
+const publicPath = path.join(__dirname, '..', 'public');
+app.use(express.static(publicPath));
 
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
-  });
-}
+app.get('*', (req, res) => {
+  res.sendFile(path.join(publicPath, 'index.html'));
+});
 
 // Only start listening when not running as a Vercel serverless function
 if (!process.env.VERCEL) {
